@@ -1,0 +1,29 @@
+# GRPO Configuration for Qwen3-VL-8B-Instruct Image-to-Code Generation
+# Simplified configuration matching ImageCodeConfig
+
+# Model Configuration
+model:
+  name: "Qwen/Qwen3-VL-8B-Instruct"
+  max_seq_length: 4096
+  max_completion_length: 4096
+  dtype: "auto"
+  load_in_4bit: false
+
+# GRPO Specific Settings
+grpo:
+  group_size: 1             # Number of responses per prompt
+
+
+# Training Configuration
+training:
+  learning_rate: 1e-5
+  per_device_train_batch_size: 1
+  gradient_accumulation_steps: 4
+  num_train_epochs: 3
+
+# Reward Function Configuration
+reward:
+  code_execution_weight: 0.0
+  image_similarity_weight: 1.0
+  syntax_error_penalty: -1.0
+  runtime_error_penalty: -1.0

@@ -1,0 +1,34 @@
+# Core ML Libraries
+transformers==4.57.0
+torch
+accelerate
+deepspeed
+datasets
+tokenizers
+
+# Reinforcement Learning
+vllm
+trl>=0.22.2
+peft>=0.7.0
+
+# Efficient Training
+bitsandbytes
+
+# Data Processing
+pandas
+numpy
+scikit-learn
+
+# Image Processing and Visualization
+matplotlib
+seaborn
+plotly
+bokeh
+altair
+opencv-python
+scikit-image
+Pillow
+
+# Utilities
+tqdm
+pyyaml
