@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 from .lora_config import DEFAULT_LORA_CONFIG
 from .image_compare import DINOEvaluator
 # TRL imports
-from transformers import Qwen3VLForConditionalGeneration, AutoProcessor
+from transformers import Qwen3VLForConditionalGeneration, AutoProcessor, TrainerCallback
 from peft import get_peft_model
 from trl import GRPOTrainer, GRPOConfig
 
@@ -37,6 +37,7 @@ class ImageCodeConfig:
     
     # Output directory
     output_dir: str = "./output/Qwen3_VL-v1"
+    resume_from_checkpoint: str = None
     
     # GRPO specific settings
     group_size: int = 4         # Number of responses per prompt
@@ -471,7 +472,7 @@ class CustomGRPOTrainer:
             "weight_decay": 0.1,
             "warmup_ratio": 0.1,
 
-            "logging_steps": 5,
+            "logging_steps": 50,
             "num_generations": int(self.config.group_size),
             "max_prompt_length": int(self.config.max_seq_length),
             "max_completion_length": int(self.config.max_completion_length),
@@ -480,6 +481,7 @@ class CustomGRPOTrainer:
             "eval_steps": 100,
             "bf16": True,
             "gradient_checkpointing": True,
+            "report_to": ["tensorboard"],
             # "use_vllm": True,
         }
         
@@ -498,12 +500,14 @@ class CustomGRPOTrainer:
         
         logger.info(f"Starting GRPO training for {epochs} epochs")
         
-        self.grpo_trainer.train()
+        if self.config.resume_from_checkpoint:
+            logger.info(f"Resuming training from checkpoint: {self.config.resume_from_checkpoint}")
+        self.grpo_trainer.train(resume_from_checkpoint=self.config.resume_from_checkpoint)
         
         logger.info("GRPO training completed")
 
 
-# # ---------- Timing utilities ----------
+# ---------- Timing utilities ----------
 # import time
 
 # def _now() -> float:
@@ -559,7 +563,7 @@ class CustomGRPOTrainer:
 
 # class TrainingTimingCallback(TrainerCallback):
 #     """Adds fine-grained timing logs for GRPO steps."""
-#     def __init__(self, tracker: TimingTracker, log_every: int = 1):
+#     def __init__(self, tracker: TimingTracker, log_every: int = 10):
 #         self.tracker = tracker
 #         self.log_every = max(int(log_every), 1)
 
@@ -570,7 +574,7 @@ class CustomGRPOTrainer:
 #         self.tracker.step_end()
 #         if state.global_step % self.log_every == 0:
 #             avgs = self.tracker.current_averages()
-#             # Log to stdout
+            
 #             logger.info(
 #                 f"Timing (avg over {self.tracker.steps} steps) — "
 #                 f"gen: {avgs['timing/avg_generation_s']:.3f}s, "
@@ -578,6 +582,6 @@ class CustomGRPOTrainer:
 #                 f"non_gen: {avgs['timing/avg_non_gen_s']:.3f}s, "
 #                 f"step: {avgs['timing/avg_step_s']:.3f}s"
 #             )
-#             # Also integrate with Trainer logging backends
+            
 #             if hasattr(self, "trainer") and self.trainer is not None:
 #                 self.trainer.log(avgs)

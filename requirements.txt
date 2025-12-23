@@ -4,7 +4,6 @@ torch
 accelerate
 deepspeed
 datasets
-tokenizers
 
 # Reinforcement Learning
 vllm

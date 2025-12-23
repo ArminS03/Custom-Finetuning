@@ -39,6 +39,7 @@ def load_config(config_path: str) -> ImageCodeConfig:
         batch_size=config_dict['training']['per_device_train_batch_size'],
         gradient_accumulation_steps=config_dict['training']['gradient_accumulation_steps'],
         num_epochs=config_dict['training']['num_train_epochs'],
+        resume_from_checkpoint=config_dict['training']['resume_from_checkpoint'],
         code_execution_weight=config_dict['reward']['code_execution_weight'],
         image_similarity_weight=config_dict['reward']['image_similarity_weight'],
         syntax_error_penalty=config_dict['reward']['syntax_error_penalty'],
